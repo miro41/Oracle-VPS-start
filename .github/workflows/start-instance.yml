@@ -1,0 +1,49 @@
+name: Oracle Instance Starter
+
+on:
+  workflow_dispatch: # Manuálne spustenie
+  
+  # Voliteľne: Ak chceš zachovať automatické zapínanie v pracovných dňoch
+  schedule:
+    - cron: '5 9 * * 1-5' # Pondelok-Piatok o 09:05 UTC
+
+jobs:
+  start-instance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup OCI CLI
+        run: |
+          curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh -o install.sh
+          bash install.sh --accept-all-defaults
+          echo "$HOME/bin" >> $GITHUB_PATH
+          
+      - name: Configure OCI
+        run: |
+          mkdir -p ~/.oci
+          echo "${{ secrets.OCI_CONFIG }}" > ~/.oci/config
+          echo "${{ secrets.OCI_KEY }}" > ~/.oci/key.pem
+          chmod 600 ~/.oci/key.pem
+          
+      - name: Start Instance
+        run: |
+          echo "=========================================="
+          echo "✅ ZAPÍNAM Oracle VPS inštanciu"
+          echo "Čas spustenia: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "=========================================="
+          
+          $HOME/bin/oci compute instance action \
+            --instance-id ${{ secrets.INSTANCE_OCID }} \
+            --action START
+            
+      - name: Verify Status
+        if: always()
+        run: |
+          echo "Čakám 10 sekúnd na dokončenie operácie..."
+          sleep 10
+          echo "Kontrola stavu inštancie:"
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
+          $HOME/bin/oci compute instance get \
+            --instance-id ${{ secrets.INSTANCE_OCID }} \
+            --query 'data."lifecycle-state"'
+          echo "=========================================="
+          echo "✅ Hotovo!"
