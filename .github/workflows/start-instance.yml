@@ -32,7 +32,7 @@ jobs:
           echo "=========================================="
           
           $HOME/bin/oci compute instance action \
-            --instance-id ${{ secrets.INSTANCE_OCID }} \
+            --instance-id "${{ secrets.INSTANCE_OCID }}" \
             --action START
             
       - name: Verify Status
@@ -43,7 +43,8 @@ jobs:
           echo "Kontrola stavu inštancie:"
           export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
           $HOME/bin/oci compute instance get \
-            --instance-id ${{ secrets.INSTANCE_OCID }} \
+            --instance-id "${{ secrets.INSTANCE_OCID }}" \
             --query 'data."lifecycle-state"'
           echo "=========================================="
           echo "✅ Hotovo!"
+          
