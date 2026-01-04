@@ -4,8 +4,8 @@ on:
   workflow_dispatch: # Manuálne spustenie
   
   # Voliteľne: Ak chceš zachovať automatické zapínanie v pracovných dňoch
-  schedule:
-    - cron: '5 9 * * 1-5' # Pondelok-Piatok o 09:05 UTC
+  #schedule:
+    #- cron: '5 9 * * 1-5' # Pondelok-Piatok o 09:05 UTC
 
 jobs:
   start-instance:
